@@ -1,11 +1,4 @@
 #importing required libraries
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn import metrics
-from flask import Flask, request, render_template
-import os
-import pickle 
 
 from flask import Flask, request, render_template
 import numpy as np
