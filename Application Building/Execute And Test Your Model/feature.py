@@ -1,14 +1,3 @@
-from base64 import urlsafe_b64decode, urlsafe_b64encode
-from nturl2path import url2pathname
-from tracemalloc import DomainFilter
-from urllib import response
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn import metrics
-from flask import Flask, request, render_template
-import os
-import pickle 
 import ipaddress
 import re
 import urllib.request
@@ -187,7 +176,7 @@ class FeatureExtraction:
             for head in self.soup.find_all('head'):
                 for head.link in self.soup.find_all('link', href=True):
                     dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
-                    if self.url in head.link['href'] or len(dots) == 1 or DomainFilter in head.link['href']:
+                    if self.url in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
                         return 1
             return -1
         except:
@@ -257,7 +246,7 @@ class FeatureExtraction:
         try:
             i,unsafe = 0,0
             for a in self.soup.find_all('a', href=True):
-                if "#" in a['href'] or "javascript" in a['href'].lower() or "mailto" in a['href'].lower() or not (urlsafe_b64decode in a['href'] or self.domain in a['href']):
+                if "#" in a['href'] or "javascript" in a['href'].lower() or "mailto" in a['href'].lower() or not (url in a['href'] or self.domain in a['href']):
                     unsafe = unsafe + 1
                 i = i + 1
 
@@ -432,7 +421,7 @@ class FeatureExtraction:
     # 26. WebsiteTraffic   
     def WebsiteTraffic(self):
         try:
-            rank = BeautifulSoup(urllib.request.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + urlsafe_b64encode).read(), "xml").find("REACH")['RANK']
+            rank = BeautifulSoup(urllib.request.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url).read(), "xml").find("REACH")['RANK']
             if (int(rank) < 100000):
                 return 1
             return 0
@@ -444,7 +433,7 @@ class FeatureExtraction:
         try:
             prank_checker_response = requests.post("https://www.checkpagerank.net/index.php", {"name": self.domain})
 
-            global_rank = int(re.findall(r"Global Rank: ([0-9]+)")[0])
+            global_rank = int(re.findall(r"Global Rank: ([0-9]+)", rank_checker_response.text)[0])
             if global_rank > 0 and global_rank < 100000:
                 return 1
             return -1
@@ -480,7 +469,7 @@ class FeatureExtraction:
     def StatsReport(self):
         try:
             url_match = re.search(
-        'at\.ua|usa\.cc|baltazarpresentes\.com\.br|pe\.hu|esy\.es|hol\.es|sweddy\.com|myjino\.ru|96\.lt|ow\.ly', url2pathname)
+        'at\.ua|usa\.cc|baltazarpresentes\.com\.br|pe\.hu|esy\.es|hol\.es|sweddy\.com|myjino\.ru|96\.lt|ow\.ly', url)
             ip_address = socket.gethostbyname(self.domain)
             ip_match = re.search('146\.112\.61\.108|213\.174\.157\.151|121\.50\.168\.88|192\.185\.217\.116|78\.46\.211\.158|181\.174\.165\.13|46\.242\.145\.103|121\.50\.168\.40|83\.125\.22\.219|46\.242\.145\.98|'
                                 '107\.151\.148\.44|107\.151\.148\.107|64\.70\.19\.203|199\.184\.144\.27|107\.151\.148\.108|107\.151\.148\.109|119\.28\.52\.61|54\.83\.43\.69|52\.69\.166\.231|216\.58\.192\.225|'
