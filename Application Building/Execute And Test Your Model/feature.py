@@ -1,15 +1,21 @@
 import ipaddress
 import re
-import urllib.request
-from bs4 import BeautifulSoup
 import socket
-import requests
-from googlesearch import search
-import whois
-from datetime import date, datetime
 import time
-from dateutil.parser import parse as date_parse
+import urllib.request
+from base64 import urlsafe_b64decode, urlsafe_b64encode
+from datetime import date, datetime
+from urllib import response
 from urllib.parse import urlparse
+from xml.dom.xmlbuilder import DOMInputSource
+import requests
+import whois
+from bs4 import BeautifulSoup
+from dateutil.parser import parse as date_parse
+from flask import Flask
+from googlesearch import search
+from nturl2path import url2pathname
+
 
 class FeatureExtraction:
     features = []
@@ -176,7 +182,7 @@ class FeatureExtraction:
             for head in self.soup.find_all('head'):
                 for head.link in self.soup.find_all('link', href=True):
                     dots = [x.start(0) for x in re.finditer('\.', head.link['href'])]
-                    if self.url in head.link['href'] or len(dots) == 1 or domain in head.link['href']:
+                    if self.url in head.link['href'] or len(dots) == 1 or DOMInputSource in head.link['href']:
                         return 1
             return -1
         except:
@@ -246,7 +252,7 @@ class FeatureExtraction:
         try:
             i,unsafe = 0,0
             for a in self.soup.find_all('a', href=True):
-                if "#" in a['href'] or "javascript" in a['href'].lower() or "mailto" in a['href'].lower() or not (url in a['href'] or self.domain in a['href']):
+                if "#" in a['href'] or "javascript" in a['href'].lower() or "mailto" in a['href'].lower() or not (urlsafe_b64decode in a['href'] or self.domain in a['href']):
                     unsafe = unsafe + 1
                 i = i + 1
 
@@ -421,7 +427,7 @@ class FeatureExtraction:
     # 26. WebsiteTraffic   
     def WebsiteTraffic(self):
         try:
-            rank = BeautifulSoup(urllib.request.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url).read(), "xml").find("REACH")['RANK']
+            rank = BeautifulSoup(urllib.request.urlopen("http://data.alexa.com/data?cli=10&dat=s&url=" + url2pathname).read(), "xml").find("REACH")['RANK']
             if (int(rank) < 100000):
                 return 1
             return 0
@@ -469,7 +475,7 @@ class FeatureExtraction:
     def StatsReport(self):
         try:
             url_match = re.search(
-        'at\.ua|usa\.cc|baltazarpresentes\.com\.br|pe\.hu|esy\.es|hol\.es|sweddy\.com|myjino\.ru|96\.lt|ow\.ly', url)
+        'at\.ua|usa\.cc|baltazarpresentes\.com\.br|pe\.hu|esy\.es|hol\.es|sweddy\.com|myjino\.ru|96\.lt|ow\.ly', urlsafe_b64encode)
             ip_address = socket.gethostbyname(self.domain)
             ip_match = re.search('146\.112\.61\.108|213\.174\.157\.151|121\.50\.168\.88|192\.185\.217\.116|78\.46\.211\.158|181\.174\.165\.13|46\.242\.145\.103|121\.50\.168\.40|83\.125\.22\.219|46\.242\.145\.98|'
                                 '107\.151\.148\.44|107\.151\.148\.107|64\.70\.19\.203|199\.184\.144\.27|107\.151\.148\.108|107\.151\.148\.109|119\.28\.52\.61|54\.83\.43\.69|52\.69\.166\.231|216\.58\.192\.225|'
