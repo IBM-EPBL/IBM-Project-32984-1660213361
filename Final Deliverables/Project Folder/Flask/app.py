@@ -19,11 +19,9 @@ app = Flask(__name__)
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-
         url = request.form["url"]
         obj = FeatureExtraction(url)
         x = np.array(obj.getFeaturesList()).reshape(1,30) 
-
         y_pred =gbc.predict(x)[0]
         #1 is safe       
         #-1 is unsafe

@@ -431,8 +431,7 @@ class FeatureExtraction:
     # 27. PageRank
     def PageRank(self):
         try:
-            prank_checker_response = requests.post("https://www.checkpagerank.net/index.php", 
-            {"name": self.domain})
+            prank_checker_response = requests.post("https://www.checkpagerank.net/index.php", {"name": self.domain})
 
             global_rank = int(re.findall(r"Global Rank: ([0-9]+)", rank_checker_response.text)[0])
             if global_rank > 0 and global_rank < 100000:
